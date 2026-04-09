@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOUR BAG // LIQUID CURE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --text: #fff;
+            --accent: #ff3e3e; 
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --font-logo: 'UnifrakturMaguntia', serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease-out;
+        }
+
+        #liquid-surface {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+            filter: blur(20px) contrast(25); 
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 5%;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: var(--font-logo);
+            font-size: 3.5rem;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .cart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto auto;
+            align-items: center;
+            gap: 20px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .cart-item:hover { border-color: var(--accent); }
+
+        .cart-item img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            filter: grayscale(1);
+        }
+
+        .item-info h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .item-info p {
+            color: var(--accent);
+            font-weight: 900;
+            font-size: 12px;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border);
+            padding: 5px 15px;
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-weight: 900;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        .qty-btn:hover { color: var(--accent); }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .remove-btn:hover { color: var(--accent); }
+
+        .cart-footer {
+            margin-top: 50px;
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .total-row {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            font-weight: 900;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .empty-msg {
+            text-align: center;
+            opacity: 0.5;
+            letter-spacing: 2px;
+            padding: 100px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="cursor"></div>
+    <canvas id="liquid-surface"></canvas>
+
+    <nav>
+        <a href="index.html">← Continue Shopping</a>
+        <div style="font-family: var(--font-logo); font-size: 1.5rem;">LC</div>
+        <div style="width: 100px;"></div> </nav>
+
+    <main class="container">
+        <h1>your bag</h1>
+        
+        <div id="cart-content">
+            </div>
+
+        <div class="cart-footer" id="cart-footer" style="display: none;">
+            <div class="total-row">TOTAL: <span id="cart-total">$0.00</span></div>
+            <button class="checkout-btn" onclick="processCheckout()">Initialize Checkout</button>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('liquid-surface');
+        const ctx = canvas.getContext('2d');
+        const cursor = document.getElementById('cursor');
+        
+        let width, height;
+        let droplets = [];
+
+        // --- CORE CART LOGIC ---
+
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('liquid_cart')) || [];
+            const container = document.getElementById('cart-content');
+            const footer = document.getElementById('cart-footer');
+            const totalDisplay = document.getElementById('cart-total');
+
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="empty-msg">THE LIQUID HAS RUN DRY. (BAG EMPTY)</p>`;
+                footer.style.display = 'none';
+                return;
+            }
+
+            footer.style.display = 'flex';
+            let total = 0;
+
+            container.innerHTML = cart.map((item, index) => {
+                const itemTotal = item.price * item.qty;
+                total += itemTotal;
+                return `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="item-info">
+                            <h3>${item.name}</h3>
+                            <p>$${item.price.toFixed(2)}</p>
+                        </div>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                        </div>
+                        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                    </div>
+                `;
+            }).join('');
+
+            totalDisplay.innerText = `$${total.toFixed(2)}`;
+        }
+
+        function updateQty(index, change) {
+            let cart = JSON.parse(localStorage.getItem('liquid_cart'));
+            cart[index].qty += change;
+            
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            
+            localStorage.setItem('liquid_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('liquid_cart'));
+            cart.splice(index, 1);
+            localStorage.setItem('liquid_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function processCheckout() {
+            alert("TRANSACTION INITIALIZING... \n(In a live environment, this would redirect to Stripe/PayPal)");
+        }
+
+        // --- VISUAL EFFECTS (Matches Index) ---
+
+        function init() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        window.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+
+            for(let i = 0; i < 2; i++) {
+                droplets.push({
+                    x: e.clientX,
+                    y: e.clientY + window.scrollY,
+                    r: Math.random() * 30 + 15,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    life: 1.0,
+                    color: Math.random() > 0.8 ? "255, 62, 62" : "255, 255, 255"
+                });
+            }
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            const sY = window.scrollY;
+            for (let i = droplets.length - 1; i >= 0; i--) {
+                let d = droplets[i];
+                d.x += d.vx; d.y += d.vy; d.life -= 0.007; 
+                if (d.life <= 0) { droplets.splice(i, 1); continue; }
+                ctx.fillStyle = `rgba(${d.color}, ${d.life * 0.4})`; 
+                ctx.beginPath();
+                ctx.arc(d.x, d.y - sY, d.r * d.life, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        draw();
+        renderCart();
+    </script>
+</body>
+</html>
